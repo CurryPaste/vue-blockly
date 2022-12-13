@@ -61,13 +61,13 @@ export const constantRoutes = [
         name: 'Table',
         component: () => import('@/views/table/index'),
         meta: { title: '表格', icon: 'table' }
+      },
+      {
+        path: 'tree',
+        name: 'Tree',
+        component: () => import('@/views/tree/index'),
+        meta: { title: '树', icon: 'tree' }
       }
-      // {
-      //   path: 'tree',
-      //   name: 'Tree',
-      //   component: () => import('@/views/tree/index'),
-      //   meta: { title: '树', icon: 'tree' }
-      // }
     ]
   },
 
@@ -81,6 +81,32 @@ export const constantRoutes = [
         name: 'Form',
         component: () => import('@/views/form/index'),
         meta: { title: '表单', icon: 'form' }
+      }
+    ]
+  },
+
+  {
+    path: '/componentManage',
+    component: Layout,
+    meta: { title: '组件管理', icon: 'el-icon-s-help' },
+    children: [
+      {
+        path: 'blockly',
+        name: 'Blockly',
+        component: () => import('@/views/componentManage/blockly'),
+        meta: { title: '图形编程', icon: 'form' }
+      },
+      {
+        path: 'Approval',
+        name: 'approval',
+        component: () => import('@/views/componentManage/blockly'),
+        meta: { title: '审批流', icon: 'form' }
+      },
+      {
+        path: 'workflow',
+        name: 'Workflow',
+        component: () => import('@/views/componentManage/blockly'),
+        meta: { title: '工作流', icon: 'form' }
       }
     ]
   },
