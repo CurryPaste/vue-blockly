@@ -1,6 +1,7 @@
 'use strict'
 const path = require('path')
 const defaultSettings = require('./src/settings.js')
+const CopyPlugin = require('copy-webpack-plugin')
 
 function resolve(dir) {
   return path.join(__dirname, dir)
@@ -46,7 +47,16 @@ module.exports = {
       alias: {
         '@': resolve('src')
       }
-    }
+    },
+    plugins: [
+      // Copy over media resources from the Blockly package
+      new CopyPlugin([
+        {
+          from: path.resolve(__dirname, './node_modules/blockly/media'),
+          to: path.resolve(__dirname, 'dist/media')
+        }
+      ])
+    ]
   },
   chainWebpack(config) {
     // it can improve the speed of the first screen, it is recommended to turn on preload

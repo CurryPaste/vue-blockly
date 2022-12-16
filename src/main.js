@@ -34,6 +34,8 @@ if (process.env.NODE_ENV === 'production') {
 Vue.use(ElementUI)
 
 Vue.config.productionTip = false
+// 这句代码最好在引入项目的main加上
+Vue.config.ignoredElements = ['field', 'block', 'category', 'xml', 'mutation', 'value', 'sep']
 
 new Vue({
   el: '#app',
