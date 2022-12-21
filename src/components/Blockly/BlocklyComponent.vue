@@ -72,7 +72,6 @@ export default {
         resopt.toolbox = toolbox
       }
       this.workspace = Blockly.inject(this.$refs['blocklyDiv'], resopt)
-      console.log(this.workspace, 'bbbb')
     },
     updateToolbox(newTree) {
       //
