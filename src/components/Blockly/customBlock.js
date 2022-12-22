@@ -1,6 +1,6 @@
 
 import * as Blockly from 'blockly/core'
-import { Mutator } from 'blockly/core'
+import { FieldTextInput, Mutator } from 'blockly/core'
 import * as hans from 'blockly/msg/zh-hans'
 import Vue from 'vue'
 Vue.config.ignoredElements = ['field', 'block', 'category', 'xml', 'mutation', 'value', 'sep', 'next', 'statement', 'arg']
@@ -46,8 +46,29 @@ export const defaultOption = {
 }
 Blockly.setLocale(hans)
 
+/** Custom - Unique - Name */
+const NAME_SWITCH = {
+  /** 转变器部分 */
+  CONTROLS: {
+    /** 转变器dialog中的switch - uniqueName */
+    SWITCH_MAIN: 'CUSTOM_CON_SWITCH_MAIN'
+  },
+
+  /** BLOCKS部分 */
+  BLOCKS: {
+    /** 主体中 参与switch判断的变量 - uniqueName */
+    SWITCH_VARIABLE: 'CUSTOM_BLOCKS_SWITCH_VARIABLE',
+    /** 主体中 case块 -uniquedName */
+    SWITCH_CASE_ITEM: 'CUSTOM_BLOCKS_SWITCH_ITEM',
+    /** 主体中 case块 被比较的输入框 - uniqueName */
+    SWITCH_CASE_INPUT: 'CUSTOM_SWITCH_CASE_INPUT',
+    /** 主体中 default uniqueName */
+    SWITCH_DEFAULT: 'CUSTOM_SWITCH_DEFAULT'
+  }
+
+}
 Blockly.defineBlocksWithJsonArray([
-  // control-case
+  // 转变器case control-case
   {
     'type': 'controls_switch_case',
     'lastDummyAlign0': 'CENTER',
@@ -58,67 +79,35 @@ Blockly.defineBlocksWithJsonArray([
     'tooltip': '',
     'helpUrl': ''
   },
-  // controls_switch_main
+  // 转变器 controls_switch_main
   {
     'type': 'controls_switch_main',
     'lastDummyAlign0': 'CENTRE',
-    'message0': 'switch',
-    'nextStatement': null,
-    'colour': 230,
-    'tooltip': '',
-    'helpUrl': ''
-  },
-  // TODO： 这里要怎么把default写在默认里呢
-  // {
-  //   'type': 'controls_switch_main',
-  //   'lastDummyAlign0': 'RIGHT',
-  //   'message0': 'switch %1 %2 default',
-  //   'args0': [
-  //     {
-  //       'type': 'input_dummy',
-  //       'align': 'CENTRE'
-  //     },
-  //     {
-  //       'type': 'input_value',
-  //       'name': 'case',
-  //       'align': 'RIGHT'
-  //     }
-  //   ],
-  //   'inputsInline': false,
-  //   'colour': 230,
-  //   'tooltip': '',
-  //   'helpUrl': ''
-  // },
-  // switch-case
-  {
-    'type': 'custom_switch_case',
-    'message0': 'case:  %1 %2',
+    'message0': 'switch %1 %2 default',
     'args0': [
       {
-        'type': 'field_input',
-        'name': 'caseValue',
-        'text': ''
+        'type': 'input_dummy',
+        'align': 'CENTRE'
       },
       {
         'type': 'input_statement',
-        'name': 'case',
-        'align': 'RIGHT'
+        'name': NAME_SWITCH.CONTROLS.SWITCH_MAIN,
+        'align': 'CENTRE'
       }
     ],
-    'previousStatement': null,
-    'nextStatement': null,
     'colour': 230,
     'tooltip': '',
     'helpUrl': ''
   },
-  // switch-main
+  // BLOCKS switch-main 这里只有 switch没有case块是因为，这里是注册switch主体，给工具箱用的，而case直接从代码里实现了
+  // TODO: 这里要么去掉默认case，要么该顺序
   {
     'type': 'custom_switch_main',
     'message0': 'switch %1 %2 case:  %3 %4 default:  %5',
     'args0': [
       {
         'type': 'field_variable',
-        'name': 'switchName',
+        'name': NAME_SWITCH.BLOCKS.SWITCH_VARIABLE,
         'variable': 'item'
       },
       {
@@ -128,16 +117,16 @@ Blockly.defineBlocksWithJsonArray([
       {
         'type': 'field_input',
         'name': 'caseValue',
-        'text': 'caseValue'
+        'text': '0'
       },
       {
         'type': 'input_statement',
-        'name': 'case',
+        'name': NAME_SWITCH.BLOCKS.SWITCH_CASE_INPUT + '0',
         'align': 'RIGHT'
       },
       {
         'type': 'input_statement',
-        'name': 'switchDefault',
+        'name': NAME_SWITCH.BLOCKS.SWITCH_DEFAULT,
         'align': 'RIGHT'
       }
     ],
@@ -152,42 +141,24 @@ Blockly.defineBlocksWithJsonArray([
 
 const Msg = Blockly.Msg
 // const xmlUtils = Blockly.utils.xml
-const CONTROLS_SWITCH_MUTATOR = {
-  elseifCount_: 0,
-  elseCount_: 0,
-  caseCount_: 0,
+const Align = Blockly.Input.Align
+const CONTROLS_SWITCH_ITEM = {
+  itemCount_: 1,
   /**
    * Returns the state of this block as a JSON serializable object.
-   * @return {?{elseIfCount: (number|undefined), haseElse: (boolean|undefined)}}
-   *     The state of this block, ie the else if count and else state.
+   * @return {{itemCount: number}} The state of this block, ie the item count.
    */
   saveExtraState: function() {
-    console.log('saveExtraState')
-    if (!this.elseifCount_ && !this.elseCount_ && !this.caseCount_) {
-      return null
+    return {
+      'itemCount': this.itemCount_
     }
-    const state = Object.create(null)
-    if (this.elseifCount_) {
-      state['elseIfCount'] = this.elseifCount_
-    }
-    if (this.caseCount_) {
-      state['caseCount'] = this.caseCount_
-    }
-    if (this.elseCount_) {
-      state['hasElse'] = true
-    }
-    return state
   },
   /**
    * Applies the given state to this block.
-   * @param {*} state The state to apply to this block, ie the else if count and
-   *     else state.
+   * @param {*} state The state to apply to this block, ie the item count.
    */
   loadExtraState: function(state) {
-    console.log('loadExtraState')
-    this.elseifCount_ = state['elseIfCount'] || 0
-    this.elseCount_ = state['hasElse'] ? 1 : 0
-    this.caseCount_ = state['caseCount'] || 0
+    this.itemCount_ = state['itemCount']
     this.updateShape_()
   },
   /**
@@ -197,26 +168,15 @@ const CONTROLS_SWITCH_MUTATOR = {
    * @this {Block}
    */
   decompose: function(workspace) {
-    console.log('decompose')
     const containerBlock = workspace.newBlock('controls_switch_main')
+
     containerBlock.initSvg()
-    let connection = containerBlock.nextConnection
-    for (let i = 1; i <= this.elseifCount_; i++) {
-      const elseifBlock = workspace.newBlock('controls_if_elseif')
-      elseifBlock.initSvg()
-      connection.connect(elseifBlock.previousConnection)
-      connection = elseifBlock.nextConnection
-    }
-    for (let i = 1; i <= this.caseCount_; i++) {
-      const caseBlock = workspace.newBlock('controls_switch_case')
-      caseBlock.initSvg()
-      connection.connect(caseBlock.previousConnection)
-      connection = caseBlock.nextConnection
-    }
-    if (this.elseCount_) {
-      const elseBlock = workspace.newBlock('controls_if_else')
-      elseBlock.initSvg()
-      connection.connect(elseBlock.previousConnection)
+    let connection = containerBlock.getInput(NAME_SWITCH.CONTROLS.SWITCH_MAIN).connection
+    for (let i = 0; i < this.itemCount_; i++) {
+      const itemBlock = workspace.newBlock('controls_switch_case')
+      itemBlock.initSvg()
+      connection.connect(itemBlock.previousConnection)
+      connection = itemBlock.nextConnection
     }
     return containerBlock
   },
@@ -226,43 +186,30 @@ const CONTROLS_SWITCH_MUTATOR = {
    * @this {Block}
    */
   compose: function(containerBlock) {
-    console.log('compose')
-    let clauseBlock = containerBlock.nextConnection.targetBlock()
+    let itemBlock = containerBlock.getInputTargetBlock(NAME_SWITCH.CONTROLS.SWITCH_MAIN)
     // Count number of inputs.
-    this.elseifCount_ = 0
-    this.elseCount_ = 0
-    this.caseCount_ = 0
-    const valueConnections = [null]
-    const statementConnections = [null]
-    let elseStatementConnection = null
-    while (clauseBlock) {
-      if (clauseBlock.isInsertionMarker()) {
-        clauseBlock = clauseBlock.getNextBlock()
+    const connections = []
+    while (itemBlock) {
+      if (itemBlock.isInsertionMarker()) {
+        itemBlock = itemBlock.getNextBlock()
         continue
       }
-      switch (clauseBlock.type) {
-        case 'controls_if_elseif':
-          this.elseifCount_++
-          valueConnections.push(clauseBlock.valueConnection_)
-          statementConnections.push(clauseBlock.statementConnection_)
-          break
-        case 'controls_if_else':
-          this.elseCount_++
-          elseStatementConnection = clauseBlock.statementConnection_
-          break
-        case 'controls_switch_case':
-          this.caseCount_++
-          console.log('compose_switch')
-          break
-        default:
-          throw TypeError('Unknown block type: ' + clauseBlock.type)
-      }
-      clauseBlock = clauseBlock.getNextBlock()
+      connections.push(itemBlock.valueConnection_)
+      itemBlock = itemBlock.getNextBlock()
     }
+    // Disconnect any children that don't belong.
+    for (let i = 0; i < this.itemCount_; i++) {
+      const connection = this.getInput(NAME_SWITCH.BLOCKS.SWITCH_CASE_ITEM + i + 1).connection.targetConnection
+      if (connection && connections.indexOf(connection) === -1) {
+        connection.disconnect()
+      }
+    }
+    this.itemCount_ = connections.length
     this.updateShape_()
     // Reconnect any child blocks.
-    this.reconnectChildBlocks_(
-      valueConnections, statementConnections, elseStatementConnection)
+    for (let i = 0; i < this.itemCount_; i++) {
+      Mutator.reconnect(connections[i], this, NAME_SWITCH.BLOCKS.SWITCH_CASE_ITEM + i + 1)
+    }
   },
   /**
    * Store pointers to any connected child blocks.
@@ -270,114 +217,53 @@ const CONTROLS_SWITCH_MUTATOR = {
    * @this {Block}
    */
   saveConnections: function(containerBlock) {
-    console.log('saveConnections')
-    let clauseBlock = containerBlock.nextConnection.targetBlock()
-    let i = 1
-    while (clauseBlock) {
-      if (clauseBlock.isInsertionMarker()) {
-        clauseBlock = clauseBlock.getNextBlock()
+    let itemBlock = containerBlock.getInputTargetBlock(NAME_SWITCH.CONTROLS.SWITCH_MAIN)
+    let i = 0
+    while (itemBlock) {
+      if (itemBlock.isInsertionMarker()) {
+        itemBlock = itemBlock.getNextBlock()
         continue
       }
-      switch (clauseBlock.type) {
-        case 'controls_if_elseif': {
-          const inputIf = this.getInput('IF' + i)
-          const inputDo = this.getInput('DO' + i)
-          clauseBlock.valueConnection_ =
-              inputIf && inputIf.connection.targetConnection
-          clauseBlock.statementConnection_ =
-              inputDo && inputDo.connection.targetConnection
-          i++
-          break
-        }
-        case 'controls_if_else': {
-          const inputDo = this.getInput('ELSE')
-          clauseBlock.statementConnection_ =
-              inputDo && inputDo.connection.targetConnection
-          break
-        }
-        case 'controls_switch_case': {
-          console.log(this.getInput('IF'))
-          // TODO: 这个getInput方法原理是啥啊 getInput
-          break
-        }
-        default:
-          throw TypeError('Unknown block type: ' + clauseBlock.type)
-      }
-      clauseBlock = clauseBlock.getNextBlock()
+      const input = this.getInput(NAME_SWITCH.BLOCKS.SWITCH_CASE_ITEM + i + 1)
+      itemBlock.valueConnection_ = input && input.connection.targetConnection
+      itemBlock = itemBlock.getNextBlock()
+      i++
     }
-  },
-  /**
-   * Reconstructs the block with all child blocks attached.
-   * @this {Block}
-   */
-  rebuildShape_: function() {
-    console.log('rebuildShape_')
-    const valueConnections = [null]
-    const statementConnections = [null]
-    let elseStatementConnection = null
-
-    if (this.getInput('ELSE')) {
-      elseStatementConnection =
-          this.getInput('ELSE').connection.targetConnection
-    }
-    for (let i = 1; this.getInput('IF' + i); i++) {
-      const inputIf = this.getInput('IF' + i)
-      const inputDo = this.getInput('DO' + i)
-      valueConnections.push(inputIf.connection.targetConnection)
-      statementConnections.push(inputDo.connection.targetConnection)
-    }
-    this.updateShape_()
-    this.reconnectChildBlocks_(
-      valueConnections, statementConnections, elseStatementConnection)
   },
   /**
    * Modify this block to have the correct number of inputs.
-   * @this {Block}
    * @private
+   * @this {Block}
    */
   updateShape_: function() {
     console.log('updateShape_')
-    // Delete everything.
-    if (this.getInput('ELSE')) {
-      this.removeInput('ELSE')
+    if (this.itemCount_ && this.getInput('EMPTY')) {
+      this.removeInput('EMPTY')
+    } else if (!this.itemCount_ && !this.getInput('EMPTY')) {
+      this.appendDummyInput('EMPTY').appendField(
+        Msg['LISTS_CREATE_EMPTY_TITLE'])
     }
-    for (let i = 1; this.getInput('IF' + i); i++) {
-      this.removeInput('IF' + i)
-      this.removeInput('DO' + i)
+    // Add new inputs.
+    for (let i = 0; i < this.itemCount_; i++) {
+      if (!this.getInput(NAME_SWITCH.BLOCKS.SWITCH_CASE_ITEM + i + 1)) {
+        // const input = this.appendValueInput('ADD' + i).setAlign(Align.RIGHT)
+        this.addCase_(i)
+        if (i === 0) {
+          // input.appendField(Msg['LISTS_CREATE_WITH_INPUT_WITH'])
+          console.log(`第${0}个`)
+        }
+      }
     }
-    // Rebuild block.
-    for (let i = 1; i <= this.elseifCount_; i++) {
-      this.appendValueInput('IF' + i).setCheck('Boolean').appendField(
-        Msg['CONTROLS_IF_MSG_ELSEIF'])
-      this.appendStatementInput('DO' + i).appendField(
-        Msg['CONTROLS_IF_MSG_THEN'])
-    }
-    if (this.elseCount_) {
-      this.appendStatementInput('ELSE').appendField(
-        Msg['CONTROLS_IF_MSG_ELSE'])
+    // Remove deleted inputs.
+    for (let i = this.itemCount_; this.getInput(NAME_SWITCH.BLOCKS.SWITCH_CASE_ITEM + i + 1); i++) {
+      this.removeInput(NAME_SWITCH.BLOCKS.SWITCH_CASE_ITEM + i + 1)
     }
   },
-  /**
-   * Reconnects child blocks.
-   * @param {!Array<?RenderedConnection>} valueConnections List of
-   * value connections for 'if' input.
-   * @param {!Array<?RenderedConnection>} statementConnections List of
-   * statement connections for 'do' input.
-   * @param {?RenderedConnection} elseStatementConnection Statement
-   * connection for else input.
-   * @this {Block}
-   */
-  reconnectChildBlocks_: function(
-    valueConnections, statementConnections, elseStatementConnection) {
-    console.log('reconnectChildBlocks_')
-    for (let i = 1; i <= this.elseifCount_; i++) {
-      Mutator.reconnect(valueConnections[i], this, 'IF' + i)
-      Mutator.reconnect(statementConnections[i], this, 'DO' + i)
-    }
-    Mutator.reconnect(elseStatementConnection, this, 'ELSE')
+  addCase_: function(i) {
+    this.appendStatementInput(NAME_SWITCH.BLOCKS.SWITCH_CASE_ITEM + i + 1).setAlign(Align.RIGHT).appendField('case: ').appendField(new FieldTextInput(i), NAME_SWITCH.BLOCKS.SWITCH_CASE_INPUT + i + 1)
   }
 }
 Blockly.Extensions.registerMutator(
-  'mutator_custom_switch', CONTROLS_SWITCH_MUTATOR, null,
-  ['controls_if_elseif', 'controls_switch_case'])
+  'mutator_custom_switch', CONTROLS_SWITCH_ITEM, null,
+  ['controls_switch_case'])
 
