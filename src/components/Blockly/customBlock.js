@@ -100,7 +100,6 @@ Blockly.defineBlocksWithJsonArray([
     'helpUrl': ''
   },
   // BLOCKS switch-main 这里只有 switch没有case块是因为，这里是注册switch主体，给工具箱用的，而case直接从代码里实现了
-  // TODO: 这里要么去掉默认case，要么该顺序
   {
     'type': 'custom_switch_main',
     'message0': 'switch %1 %2 case:  %3 %4 default:  %5',
@@ -236,32 +235,36 @@ const CONTROLS_SWITCH_ITEM = {
    * @this {Block}
    */
   updateShape_: function() {
-    console.log('updateShape_')
+    console.log('updateShape_', this.inputList, 'inputList')
     if (this.itemCount_ && this.getInput('EMPTY')) {
       this.removeInput('EMPTY')
     } else if (!this.itemCount_ && !this.getInput('EMPTY')) {
       this.appendDummyInput('EMPTY').appendField(
-        Msg['LISTS_CREATE_EMPTY_TITLE'])
+        // Msg['LISTS_CREATE_EMPTY_TITLE']
+        '这里应该展示： 最少一个case之类的东西'
+      )
     }
+    // const next = this.getInput(NAME_SWITCH.BLOCKS.SWITCH_CASE_INPUT + '0')
     // Add new inputs.
     for (let i = 0; i < this.itemCount_; i++) {
       if (!this.getInput(NAME_SWITCH.BLOCKS.SWITCH_CASE_ITEM + i + 1)) {
-        // const input = this.appendValueInput('ADD' + i).setAlign(Align.RIGHT)
         this.addCase_(i)
-        if (i === 0) {
-          // input.appendField(Msg['LISTS_CREATE_WITH_INPUT_WITH'])
-          console.log(`第${0}个`)
-        }
       }
     }
-    // Remove deleted inputs.
+    // Remove deleted inputs. 删除多余的case
     for (let i = this.itemCount_; this.getInput(NAME_SWITCH.BLOCKS.SWITCH_CASE_ITEM + i + 1); i++) {
       this.removeInput(NAME_SWITCH.BLOCKS.SWITCH_CASE_ITEM + i + 1)
     }
   },
   addCase_: function(i) {
-    this.appendStatementInput(NAME_SWITCH.BLOCKS.SWITCH_CASE_ITEM + i + 1).setAlign(Align.RIGHT).appendField('case: ').appendField(new FieldTextInput(i), NAME_SWITCH.BLOCKS.SWITCH_CASE_INPUT + i + 1)
+    this.appendStatementInput(NAME_SWITCH.BLOCKS.SWITCH_CASE_ITEM + i + 1)
+      .setAlign(Align.RIGHT)
+      .appendField('case: ')
+      .appendField(new FieldTextInput(i + 1), NAME_SWITCH.BLOCKS.SWITCH_CASE_INPUT + i + 1)
+    // 需要手动移动到default块前面
+    this.moveInputBefore(NAME_SWITCH.BLOCKS.SWITCH_CASE_ITEM + i + 1, NAME_SWITCH.BLOCKS.SWITCH_DEFAULT)
   }
+
 }
 Blockly.Extensions.registerMutator(
   'mutator_custom_switch', CONTROLS_SWITCH_ITEM, null,
