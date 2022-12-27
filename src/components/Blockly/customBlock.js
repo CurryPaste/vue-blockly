@@ -82,17 +82,18 @@ Blockly.defineBlocksWithJsonArray([
   // 转变器 controls_switch_main
   {
     'type': 'controls_switch_main',
-    'lastDummyAlign0': 'CENTRE',
-    'message0': 'switch %1 %2 default',
+    'lastDummyAlign0': 'LEFT',
+    'message0': 'switch %1 case %2 %3 default',
     'args0': [
       {
-        'type': 'input_dummy',
-        'align': 'CENTRE'
+        'type': 'input_dummy'
+      },
+      {
+        'type': 'input_dummy'
       },
       {
         'type': 'input_statement',
-        'name': NAME_SWITCH.CONTROLS.SWITCH_MAIN,
-        'align': 'CENTRE'
+        'name': NAME_SWITCH.CONTROLS.SWITCH_MAIN
       }
     ],
     'colour': 230,
@@ -116,7 +117,7 @@ Blockly.defineBlocksWithJsonArray([
       {
         'type': 'field_input',
         'name': 'caseValue',
-        'text': '0'
+        'text': ''
       },
       {
         'type': 'input_statement',
@@ -138,7 +139,7 @@ Blockly.defineBlocksWithJsonArray([
   }
 ])
 
-const Msg = Blockly.Msg
+// const Msg = Blockly.Msg
 // const xmlUtils = Blockly.utils.xml
 const Align = Blockly.Input.Align
 const CONTROLS_SWITCH_ITEM = {
@@ -235,15 +236,15 @@ const CONTROLS_SWITCH_ITEM = {
    * @this {Block}
    */
   updateShape_: function() {
-    console.log('updateShape_', this.inputList, 'inputList')
-    if (this.itemCount_ && this.getInput('EMPTY')) {
-      this.removeInput('EMPTY')
-    } else if (!this.itemCount_ && !this.getInput('EMPTY')) {
-      this.appendDummyInput('EMPTY').appendField(
-        // Msg['LISTS_CREATE_EMPTY_TITLE']
-        '这里应该展示： 最少一个case之类的东西'
-      )
-    }
+    // if (this.itemCount_ && this.getInput('EMPTY')) {
+    //   this.removeInput('EMPTY')
+    // } else if (!this.itemCount_ && !this.getInput('EMPTY')) {
+    //   this.appendDummyInput('EMPTY').appendField(
+    //     // Msg['LISTS_CREATE_EMPTY_TITLE']
+    //     '这里应该展示： 最少一个case之类的东西'
+    //   )
+    // }
+
     // const next = this.getInput(NAME_SWITCH.BLOCKS.SWITCH_CASE_INPUT + '0')
     // Add new inputs.
     for (let i = 0; i < this.itemCount_; i++) {
@@ -260,7 +261,7 @@ const CONTROLS_SWITCH_ITEM = {
     this.appendStatementInput(NAME_SWITCH.BLOCKS.SWITCH_CASE_ITEM + i + 1)
       .setAlign(Align.RIGHT)
       .appendField('case: ')
-      .appendField(new FieldTextInput(i + 1), NAME_SWITCH.BLOCKS.SWITCH_CASE_INPUT + i + 1)
+      .appendField(new FieldTextInput(''), NAME_SWITCH.BLOCKS.SWITCH_CASE_INPUT + i + 1)
     // 需要手动移动到default块前面
     this.moveInputBefore(NAME_SWITCH.BLOCKS.SWITCH_CASE_ITEM + i + 1, NAME_SWITCH.BLOCKS.SWITCH_DEFAULT)
   }
