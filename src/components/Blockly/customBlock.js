@@ -143,7 +143,7 @@ Blockly.defineBlocksWithJsonArray([
 // const xmlUtils = Blockly.utils.xml
 const Align = Blockly.Input.Align
 const CONTROLS_SWITCH_ITEM = {
-  itemCount_: 1,
+  itemCount_: 0,
   /**
    * Returns the state of this block as a JSON serializable object.
    * @return {{itemCount: number}} The state of this block, ie the item count.
