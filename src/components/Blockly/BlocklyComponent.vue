@@ -31,6 +31,7 @@
  * @author samelh@google.com (Sam El-Husseini)
  */
 import Blockly from 'blockly'
+import { javascriptGenerator } from 'blockly/javascript'
 import { defaultOption } from './customBlock'
 import './customBlock'
 
@@ -76,6 +77,30 @@ export default {
     updateToolbox(newTree) {
       //
       this.workspace.updateToolbox(newTree)
+    },
+    jsonSave() {
+      const json = Blockly.serialization.workspaces.save(this.workspace)
+      return json
+    },
+    jsonLoad(json) {
+      Blockly.serialization.workspaces.load({ ...json }, this.workspace)
+    },
+    json2Code() {
+      return javascriptGenerator.workspaceToCode(this.workspace)
+    },
+    runCode(codeParam = undefined) {
+      // Generate JavaScript code and run it.
+      window.LoopTrap = 1000
+      javascriptGenerator.INFINITE_LOOP_TRAP =
+          'if (--window.LoopTrap == 0) throw "Infinite loop.";\n'
+      const code = codeParam || javascriptGenerator.workspaceToCode(this.workspace)
+      javascriptGenerator.INFINITE_LOOP_TRAP = null
+      try {
+        // eslint-disable-next-line no-eval
+        eval(code)
+      } catch (e) {
+        alert(e)
+      }
     }
   }
 }
