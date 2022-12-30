@@ -32,7 +32,7 @@
  */
 import Blockly from 'blockly'
 import { javascriptGenerator } from 'blockly/javascript'
-import { defaultOption } from './customBlock'
+import { defaultOption, defaultJson } from './customBlock'
 import './customBlock'
 
 export default {
@@ -43,6 +43,11 @@ export default {
       default: undefined
     },
     toolbox: {
+      type: Object,
+      default: undefined
+    },
+    /** 画布初始json */
+    defaultJson: {
       type: Object,
       default: undefined
     }
@@ -73,6 +78,7 @@ export default {
         resopt.toolbox = toolbox
       }
       this.workspace = Blockly.inject(this.$refs['blocklyDiv'], resopt)
+      this.$nextTick(() => this.jsonLoad({ ...defaultJson, ...this.defaultJson }))
     },
     updateToolbox(newTree) {
       //

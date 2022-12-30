@@ -37,12 +37,142 @@ export const defaultOption = {
     wheel: false, // 鼠标滚动缩放
     startScale: 1.0,
     maxScale: 4,
-    minScale: 0.7,
+    minScale: 0.5,
     scaleSpeed: 1.2,
     pinch: true // 触摸设备上启用双指张合缩放功能
   }, // 配置缩放行为
   // https://developers.google.com/blockly/guides/configure/web/toolbox
   toolbox: undefined
+}
+/** 画布默认块 */
+// TODO: 这里理论上要和vue页面的toolbox的是一致的，所以需要一个函数过滤多余的key，比如id
+export const defaultJson = {
+  'blocks': {
+    'languageVersion': 0,
+    'blocks': [
+      {
+        'type': 'procedures_defreturn',
+        'id': 'h4#!?~DE6{g.vVq^NG9Q',
+        'x': 75,
+        'y': 75,
+        'extraState': {
+          'params': [
+            {
+              'name': '要查找的值X',
+              'id': '`xSrRrZXgnlw=:5t/1Jt'
+            },
+            {
+              'name': '被查找的列表Y',
+              'id': 'gVDLd8^ugU%{hZ0*(fGz'
+            }
+          ]
+        },
+        'icons': {
+          'comment': {
+            'text': '要查找的值X，被查找的值Y。\n如果X存在于Y中，返回true，否则返回false。',
+            'pinned': false,
+            'height': 80,
+            'width': 400
+          }
+        },
+        'fields': {
+          'NAME': '判断值x是否存在于列表y中'
+        },
+        'inputs': {
+          'STACK': {
+            'block': {
+              'type': 'procedures_ifreturn',
+              'id': 'qSI,/|[049EH#s.3Nz=#',
+              'extraState': '<mutation value="1"></mutation>',
+              'inputs': {
+                'CONDITION': {
+                  'block': {
+                    'type': 'logic_compare',
+                    'id': 'j?cQrS2gk:]!r]b@ceo:',
+                    'fields': {
+                      'OP': 'GTE'
+                    },
+                    'inputs': {
+                      'A': {
+                        'block': {
+                          'type': 'lists_indexOf',
+                          'id': '{#Nr2=K_(U0mJrmPDQu!',
+                          'fields': {
+                            'END': 'FIRST'
+                          },
+                          'inputs': {
+                            'VALUE': {
+                              'block': {
+                                'type': 'variables_get',
+                                'id': '$HPaN_Hx5UQ_u}Iqk-MC',
+                                'fields': {
+                                  'VAR': {
+                                    'id': '`xSrRrZXgnlw=:5t/1Jt'
+                                  }
+                                }
+                              }
+                            },
+                            'FIND': {
+                              'block': {
+                                'type': 'variables_get',
+                                'id': 'kRV5XPNkX(^XL}RrEi4-',
+                                'fields': {
+                                  'VAR': {
+                                    'id': 'gVDLd8^ugU%{hZ0*(fGz'
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      },
+                      'B': {
+                        'block': {
+                          'type': 'math_number',
+                          'id': '0O;pPV+;pnez1cUTNVCn',
+                          'fields': {
+                            'NUM': 1
+                          }
+                        }
+                      }
+                    }
+                  }
+                },
+                'VALUE': {
+                  'block': {
+                    'type': 'logic_boolean',
+                    'id': '-UybRF~mVg;.p{[uL.@5',
+                    'fields': {
+                      'BOOL': 'TRUE'
+                    }
+                  }
+                }
+              }
+            }
+          },
+          'RETURN': {
+            'block': {
+              'type': 'logic_boolean',
+              'id': 'djRbWU153]azI{}Ru1lP',
+              'fields': {
+                'BOOL': 'FALSE'
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  'variables': [
+    {
+      'name': '要查找的值X',
+      'id': '`xSrRrZXgnlw=:5t/1Jt'
+    },
+    {
+      'name': '被查找的列表Y',
+      'id': 'gVDLd8^ugU%{hZ0*(fGz'
+    }
+  ]
 }
 Blockly.setLocale(hans)
 
