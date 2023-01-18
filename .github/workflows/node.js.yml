@@ -41,7 +41,7 @@ jobs:
     - name: GitHub Pages
       uses: crazy-max/ghaction-github-pages@v3.1.0
       with: 
-        targer_branch: github-page
+        target_branch: gh-pages
         build_dir: dist
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
